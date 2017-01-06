@@ -64,7 +64,8 @@ echo "predix.home.dir=${PREDIX_MACHINE_HOME}" > "$DIRNAME/predix.home.prs"
 ##########################################################################################
 EXTPRS="../../../../configuration/machine/predix.prs;../../predix/predix.home.prs;./machine.prs"
 MBS_SERVER_JAR="../../../lib/framework/com.prosyst.util.log.buffer.jar"
-VM_ARGS="-Dmbs.log.custom=com.prosyst.util.log.buffer.BufferedLogger -Dmbs.log.useEventThread=false -Dmbs.log.file.entriesThreshold=0 -Djava.security.egd=file:///dev/urandom -Dorg.osgi.framework.bootdelegation=mraa.*,upm_adc121c021.*"
+VM_ARGS="-Dmbs.log.custom=com.prosyst.util.log.buffer.BufferedLogger -Dmbs.log.useEventThread=false -Dmbs.log.file.entriesThreshold=0 -Djava.security.egd=file:///dev/urandom -Dorg.osgi.framework.bootdelegation=mraa.*,upm_grove.*,upm_adc121c021.*"
+
 # turn on java security permissions in ../machine/bin/vms/policy.all. Comment out the line to turn it off.
 #FWSECURITY=on
 
