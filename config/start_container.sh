@@ -89,6 +89,9 @@ fi
 if [ -e "/usr/lib/java/mraa.jar" ]; then                                                                                                                                                                  
     EXTRA_CP="$EXTRA_CP:/usr/lib/java/mraa.jar"                                                                                                                                                           
 fi  
+if [ -e "/usr/lib/java/upm_grove.jar" ]; then
+    EXTRA_CP="$EXTRA_CP:/usr/lib/java/upm_grove.jar" 
+fi  
 if [ -e "/usr/lib/java/upm_adc121c021.jar" ]; then                                                                                                                                                                  
     EXTRA_CP="$EXTRA_CP:/usr/lib/java/upm_adc121c021.jar"                                                                                                                                                           
 fi 
