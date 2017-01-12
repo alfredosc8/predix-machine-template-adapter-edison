@@ -64,7 +64,7 @@ echo "predix.home.dir=${PREDIX_MACHINE_HOME}" > "$DIRNAME/predix.home.prs"
 ##########################################################################################
 EXTPRS="../../../../configuration/machine/predix.prs;../../predix/predix.home.prs;./machine.prs"
 MBS_SERVER_JAR="../../../lib/framework/com.prosyst.util.log.buffer.jar"
-VM_ARGS="-Dmbs.log.custom=com.prosyst.util.log.buffer.BufferedLogger -Dmbs.log.useEventThread=false -Dmbs.log.file.entriesThreshold=0 -Djava.security.egd=file:///dev/urandom -Dorg.osgi.framework.bootdelegation=mraa.*,upm_grove.*,upm_adc121c021.*"
+VM_ARGS="-Dmbs.log.custom=com.prosyst.util.log.buffer.BufferedLogger -Dmbs.log.useEventThread=false -Dmbs.log.file.entriesThreshold=0 -Djava.security.egd=file:///dev/urandom -Dorg.osgi.framework.bootdelegation=mraa.*,upm_grove.*,upm_buzzer.*"
 
 # turn on java security permissions in ../machine/bin/vms/policy.all. Comment out the line to turn it off.
 #FWSECURITY=on
@@ -92,8 +92,8 @@ fi
 if [ -e "/usr/lib/java/upm_grove.jar" ]; then
     EXTRA_CP="$EXTRA_CP:/usr/lib/java/upm_grove.jar" 
 fi  
-if [ -e "/usr/lib/java/upm_adc121c021.jar" ]; then                                                                                                                                                                  
-    EXTRA_CP="$EXTRA_CP:/usr/lib/java/upm_adc121c021.jar"                                                                                                                                                           
+if [ -e "/usr/lib/java/upm_buzzer.jar" ]; then                                                                                                                                                                  
+    EXTRA_CP="$EXTRA_CP:/usr/lib/java/upm_buzzer.jar"                                                                                                                                                           
 fi 
 # Add RXTX libraries for Modbus serial communication
 if [ -e "$PREDIX_MACHINE_HOME/machine/lib/rxtx/rxtx-2.2pre2-bins/RXTXcomm.jar" ]; then
