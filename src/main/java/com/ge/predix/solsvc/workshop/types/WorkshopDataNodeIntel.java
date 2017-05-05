@@ -12,12 +12,21 @@ package com.ge.predix.solsvc.workshop.types;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
+import java.util.List;
 import java.util.UUID;
 
 import com.ge.dspmicro.machinegateway.types.PDataNode;
+import com.ge.predix.solsvc.workshop.config.JsonDataNode;
+import com.ge.predix.solsvc.workshop.config.TriggerNode;
 
 import mraa.Aio;
 import mraa.Gpio;
+import upm_grove.GroveButton;
+import upm_grove.GroveLed;
+import upm_grove.GroveLight;
+import upm_grove.GroveRotary;
+import upm_grove.GroveTemp;
 
 /**
  * 
@@ -26,84 +35,105 @@ import mraa.Gpio;
  */
 public class WorkshopDataNodeIntel extends PDataNode
 {
+	//private static final Logger _logger = LoggerFactory.getLogger(WorkshopDataNodeIntel.class);
+	private Gpio gpioPin;
+
+	
+	private Aio aioPin;
+	
+	
+	private String nodeType;
+
+	private String nodePinType;
+	
+	private String nodePinDir;
+	
+	private String expression;
+	
+	private String nodeClass;
+		
+    private GroveLight groveLight;
     
-    /**
+    private GroveTemp groveTemp;
+    
+    private GroveRotary groveRotary;
+    
+    private GroveButton groveButton;
+    
+    private GroveLed groveLED;
+    
+	private List<TriggerNode> triggerNodes;
+	
+	/**
 	 * @param machineAdapterId -
-	 * @param name -
-     * @param nodeType - 
-     * @param nodePin -
+	 * @param node -
 	 */
-	public WorkshopDataNodeIntel(UUID machineAdapterId, String name,String nodeType,long nodePin) {
-		super(machineAdapterId, name);
-		this.nodeType = nodeType;
-		this.nodePin = nodePin;
+	public WorkshopDataNodeIntel(UUID machineAdapterId, JsonDataNode node) {
+		super(machineAdapterId, node.getNodeName());
+		this.nodeType = node.getNodeType();
+		this.triggerNodes = node.getTriggerNodes();
+		this.nodePinType = node.getNodePinType();
+		this.nodePinDir = node.getNodePinDir();
+		this.expression = node.getExpression();
+		this.nodeClass = node.getNodeClass();	
 		switch (this.nodeType) {
-        case "Light": //$NON-NLS-1$
-			this.lightNode = new upm_grove.GroveLight(nodePin);
-			break;
-        case "Temperature": //$NON-NLS-1$
-        	this.tempNode = new upm_grove.GroveTemp(nodePin);
-        	break;
-        case "RotaryAngle": //$NON-NLS-1$
-        	this.rotaryNode = new upm_grove.GroveRotary(nodePin);
-        	break;
-        case "Button": //$NON-NLS-1$
-        	this.setButtonNode(new upm_grove.GroveButton(nodePin));
-        	break;
-		default:
-			break;
-        }
+	        case "Light": //$NON-NLS-1$
+				this.groveLight = new GroveLight(node.getNodePin());
+				break;
+	        case "Temperature": //$NON-NLS-1$
+	        	this.groveTemp = new GroveTemp(node.getNodePin());
+	        	break;
+	        case "RotaryAngle": //$NON-NLS-1$
+	        	this.groveRotary = new GroveRotary(node.getNodePin());
+	        	break;
+	        case "Button": //$NON-NLS-1$
+	        	this.groveButton = new GroveButton(node.getNodePin());
+	        	break;
+	        case "LED" :
+	        	this.setGroveLED(new GroveLed(node.getNodePin()));
+			default:
+				break;
+		}
 	}
 
-	private long nodePin;
-        
-    private Gpio gpioPin;
-    
-    private Aio aioPin;
-    
-    private upm_grove.GroveLight lightNode;
-    
-    private upm_grove.GroveTemp tempNode;
-    
-    private upm_grove.GroveRotary rotaryNode;
-    
-    private upm_grove.GroveButton buttonNode;
-
-    private String nodeType;
-
-	
-	
-    
-
-    /**
-     * Node address to uniquely identify the node.
-     */
-    @Override
-    public URI getAddress()
-    {
-        try
-        {
-            URI address = new URI("sample.subscription.adapter", null, "localhost", -1, "/" + getName(), null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            return address;
-        }
-        catch (URISyntaxException e)
-        {
-            return null;
-        }
-    }
-
-	/**
-	 * @return -
-	 */
-	public long getNodePin() {
-		return this.nodePin;
+	public Float readValue() {
+		float fvalue = 0.0f;
+		
+		switch (this.nodeType) {
+			case "Light": //$NON-NLS-1$
+				fvalue = this.groveLight.value();
+				break;
+			case "Temperature": //$NON-NLS-1$
+				fvalue = this.groveTemp.value();
+				break;
+			case "RotaryAngle": //$NON-NLS-1$
+				float sensorValue = this.groveRotary.abs_value();
+				float calculatedValue = Math.round((sensorValue) * 5 / 1023);
+				DecimalFormat df = new DecimalFormat("####.##"); //$NON-NLS-1$
+				fvalue = new Float(df.format(calculatedValue));
+				break;
+			case "Button": //$NON-NLS-1$
+				int value = this.groveButton.value();
+				fvalue = new Float(value);
+				break;
+			default:
+				fvalue = getAioPin().readFloat();
+				break;
+		}
+		//_logger.info("Node Name : "+this.getName()+" : NodeType : "+this.nodeType+" : Value : "+fvalue);
+		return new Float(fvalue);
 	}
-
 	/**
-	 * @param nodePin -
+	 * Node address to uniquely identify the node.
 	 */
-	public void setNodePin(long nodePin) {
-		this.nodePin = nodePin;
+	@Override
+	public URI getAddress() {
+		try {
+			URI address = new URI("sample.subscription.adapter", null, "localhost", -1, "/" + getName(), null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return address;
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -114,7 +144,8 @@ public class WorkshopDataNodeIntel extends PDataNode
 	}
 
 	/**
-	 * @param aioPin -
+	 * @param aioPin
+	 *            -
 	 */
 	public void setAioPin(Aio aioPin) {
 		this.aioPin = aioPin;
@@ -128,52 +159,11 @@ public class WorkshopDataNodeIntel extends PDataNode
 	}
 
 	/**
-	 * @param gpioPin -
+	 * @param gpioPin
+	 *            -
 	 */
 	public void setGpioPin(Gpio gpioPin) {
 		this.gpioPin = gpioPin;
-	}
-
-	/**
-	 * @return -
-	 */
-	public upm_grove.GroveLight getLightNode() {
-		return this.lightNode;
-	}
-
-	/**
-	 * @param lightNode -
-	 */
-	public void setLightNode(upm_grove.GroveLight lightNode) {
-		this.lightNode = lightNode;
-	}
-
-	/**
-	 * @return -
-	 */
-	public upm_grove.GroveTemp getTempNode() {
-		return this.tempNode;
-	}
-
-	/**
-	 * @param tempNode -
-	 */
-	public void setTempNode(upm_grove.GroveTemp tempNode) {
-		this.tempNode = tempNode;
-	}
-
-	/**
-	 * @return -
-	 */
-	public upm_grove.GroveRotary getRotaryNode() {
-		return this.rotaryNode;
-	}
-
-	/**
-	 * @param rotaryNode -
-	 */
-	public void setRotaryNode(upm_grove.GroveRotary rotaryNode) {
-		this.rotaryNode = rotaryNode;
 	}
 
 	/**
@@ -184,7 +174,8 @@ public class WorkshopDataNodeIntel extends PDataNode
 	}
 
 	/**
-	 * @param nodeType -
+	 * @param nodeType
+	 *            -
 	 */
 	public void setNodeType(String nodeType) {
 		this.nodeType = nodeType;
@@ -193,14 +184,73 @@ public class WorkshopDataNodeIntel extends PDataNode
 	/**
 	 * @return -
 	 */
-	public upm_grove.GroveButton getButtonNode() {
-		return this.buttonNode;
+	public String getNodePinType() {
+		return this.nodePinType;
 	}
 
 	/**
-	 * @param buttonNode -
+	 * @param nodePinType -
 	 */
-	public void setButtonNode(upm_grove.GroveButton buttonNode) {
-		this.buttonNode = buttonNode;
-	}	
+	public void setNodePinType(String nodePinType) {
+		this.nodePinType = nodePinType;
+	}
+
+	/**
+	 * @return -
+	 */
+	public List<TriggerNode> getTriggerNodes() {
+		return this.triggerNodes;
+	}
+
+	/**
+	 * @param triggerNodes -
+	 */
+	public void setTriggerNodes(List<TriggerNode> triggerNodes) {
+		this.triggerNodes = triggerNodes;
+	}
+
+	/**
+	 * @return -
+	 */
+	public String getNodePinDir() {
+		return this.nodePinDir;
+	}
+
+	/**
+	 * @param nodePinDir -
+	 */
+	public void setNodePinDir(String nodePinDir) {
+		this.nodePinDir = nodePinDir;
+	}
+
+
+	/**
+	 * @return the expression
+	 */
+	public String getExpression() {
+		return this.expression;
+	}
+
+	/**
+	 * @param expression the expression to set
+	 */
+	public void setExpression(String expression) {
+		this.expression = expression;
+	}
+
+	public String getNodeClass() {
+		return nodeClass;
+	}
+
+	public void setNodeClass(String nodeClass) {
+		this.nodeClass = nodeClass;
+	}
+
+	public GroveLed getGroveLED() {
+		return groveLED;
+	}
+
+	public void setGroveLED(GroveLed groveLED) {
+		this.groveLED = groveLED;
+	}
 }
