@@ -4,6 +4,7 @@
 <a href="http://predixdev.github.io/predix-machine-template-adapter-edison" target="_blank">
 	<img height="50px" width="100px" src="images/pages.jpg" alt="view github pages">
 </a>
+
 # predix-machine-template-adapter-edison
 Machine bundle for Predix workshop for Intel Edison
 
