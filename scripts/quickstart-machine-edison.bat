@@ -33,10 +33,14 @@ IF [!BRANCH!]==[] (
 
 SET IZON_BAT=https://raw.githubusercontent.com/PredixDev/izon/master/izon.bat
 SET TUTORIAL=https://www.predix.io/resources/tutorials/journey.html#1752
+SET REPO_NAME=predix-machine-template-adapter-edison
 SET SHELL_SCRIPT_NAME=quickstart-machine-edison.sh
 SET APP_NAME="Edge Starter for Intel Edison"
-SET TOOLS=Cloud Foundry CLI, Git, Predix CLI, Node.js, Maven
-SET TOOLS_SWITCHES=/cf /git /predixcli /nodejs /maven
+SET TOOLS=Cloud Foundry CLI, Git, Node.js, Maven, Predix CLI
+SET TOOLS_SWITCHES=/cf /git /nodejs /maven /predixcli
+
+SET SHELL_SCRIPT_URL=https://github.build.ge.com/raw/adoption/!REPO_NAME!/!BRANCH!/scripts/!SHELL_SCRIPT_NAME!
+
 GOTO START
 
 :CHECK_DIR
@@ -79,6 +83,12 @@ GOTO :eof
     ECHO.
     ECHO Exiting tutorial.  Looks like you are in the system32 directory, please change directories, e.g. \Users\your-login-name
     EXIT /b 1
+  )
+  IF not "!CURRENTDIR!"=="!CURRENTDIR:\scripts=!" (
+      ECHO.
+      ECHO.
+      ECHO Exiting tutorial.  Please launch the script from the root dir of the project
+      EXIT /b 1
   )
 
   ECHO Let's start by verifying that you have the required tools installed.
@@ -154,9 +164,10 @@ if !CF_URL!=="" (
   cf login -a !CF_URL! -u !CF_USER! -p !CF_PASSWORD! -o !CF_ORG! -s !CF_SPACE!
 )
 
-ECHO Running the !CURRENTDIR!\scripts\%SHELL_SCRIPT_NAME% script using Git-Bash
+powershell -Command "(new-object net.webclient).DownloadFile('!SHELL_SCRIPT_URL!','!CURRENTDIR!\!SHELL_SCRIPT_NAME!')"
+ECHO Running the !CURRENTDIR!\%SHELL_SCRIPT_NAME% script using Git-Bash
 cd !CURRENTDIR!
 ECHO.
-"%PROGRAMFILES%\Git\bin\bash" --login -i -- "!CURRENTDIR!\scripts\%SHELL_SCRIPT_NAME%" -b !BRANCH! --skip-setup !QUICKSTART_ARGS!
+"%PROGRAMFILES%\Git\bin\bash" --login -i -- "!CURRENTDIR!\%SHELL_SCRIPT_NAME%" -b !BRANCH! --skip-setup !QUICKSTART_ARGS!
 
 POPD
