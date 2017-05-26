@@ -42,7 +42,7 @@ SET TOOLS_SWITCHES=/cf /git /nodejs /maven /predixcli
 SET SHELL_SCRIPT_URL=https://raw.githubusercontent.com/PredixDev/!REPO_NAME!/!BRANCH!/scripts/!SHELL_SCRIPT_NAME!
 
 GOTO START
-
+ 
 :CHECK_DIR
   IF not "!CURRENTDIR!"=="!CURRENTDIR:System32=!" (
     ECHO.
