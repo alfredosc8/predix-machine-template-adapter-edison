@@ -1,7 +1,7 @@
 
 
 Subscription Machine Adapter Sample - Implements ISubscriptionMachineAdapter interface and shows
-	how to develop subscription functionality of machine adapter
+	how to develop subscription functionality of machine adapter 
 
 At start up, the adapter creates data nodes that can be used to read/write data. The data for each
 data node is provided from a random data generator, which runs on a separate thread. Data frequency
